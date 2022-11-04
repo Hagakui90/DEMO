@@ -8,15 +8,18 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
+//change
 public class Demo {
 	WebDriver driver;
 	JavascriptExecutor jsExecutor;
 	String projectPath = System.getProperty("user.dir");
 	String osName = System.getProperty("os.name");
+	Actions actions;
 
 	@BeforeClass
 	public void beforeClass() {
@@ -28,6 +31,7 @@ public class Demo {
 		
 		driver = new FirefoxDriver();
 		jsExecutor = (JavascriptExecutor)driver;
+		actions = new Actions(driver);
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 		driver.manage().window().maximize();
 		
@@ -98,8 +102,6 @@ public class Demo {
 		driver.findElement(By.cssSelector("div.login-form button[type='submit']")).click();
 		Assert.assertEquals(getElementValidationMessage("//div[@class='login-form']//input[@id='id_password']"),"Please fill out this field.");
 
-		
-	
 	}
 	
 	@Test
@@ -135,7 +137,93 @@ public class Demo {
 			
 		
 	}
+	@Test
+	public void TC_04_Pexels() {
+		driver.get("https://www.pexels.com/vi-vn/join-contributor/");
+		// Close bottom bar
+		driver.findElement(By.cssSelector("a.switch-locale__close")).click();
+		sleepInSecond(3);
+		
+		driver.findElement(By.cssSelector("button[class='rd__button rd__button--full-width']")).click();
+		Assert.assertEquals(getElementValidationMessage("//input[@id='user_first_name']"), "Please fill out this field.");
+		
+		driver.findElement(By.cssSelector("input#user_first_name")).sendKeys("Hasta");
+		driver.findElement(By.cssSelector("button[class='rd__button rd__button--full-width']")).click();
+		Assert.assertEquals(getElementValidationMessage("//input[@id='user_email']"), "Please fill out this field.");
+		
+		String email = "hastamanana" + generateRandomNumber() + "@gmail.com";
+		driver.findElement(By.cssSelector("input#user_email")).sendKeys(email);
+		Assert.assertEquals(getElementValidationMessage("//input[@id='user_password']"), "Please fill out this field.");
+		
+	}
 
+	@Test
+	public void TC_05_Guru99() {
+		driver.get("https://demo.guru99.com/v4/");
+		
+		driver.findElement(By.name("uid")).sendKeys("mngr452292");
+		driver.findElement(By.name("password")).sendKeys("arUzana ");
+		driver.findElement(By.name("btnLogin")).click();	
+		sleepInSecond(3);
+		
+		driver.findElement(By.xpath("//a[text()='New Customer']")).click();
+		sleepInSecond(3);
+		
+		// This webpage contains Advertisement pop up. This pop up is contained by 2 nested iframe. 
+		// So solution is swith to every frame: frame1 > frame2 
+		WebElement frame1 = driver.findElement(By.id("google_ads_iframe_/24132379/INTERSTITIAL_DemoGuru99_0"));
+		driver.switchTo().frame(frame1);
+		
+		WebElement btnClose = driver.findElement(By.cssSelector("div#ad_position_box svg"));
+		String hexColor = btnClose.getAttribute("fill");
+		System.out.println("HEX color = " + hexColor);
+		if (hexColor.equals("none")) {			
+			System.out.println("Exist button Close");
+			WebElement frame2 = driver.findElement(By.id("ad_iframe"));
+			driver.switchTo().frame(frame2);
+			driver.findElement(By.xpath("//div[@id='dismiss-button']")).click();
+		} else {
+
+			System.out.println("Exist button X");
+			driver.findElement(By.xpath("//div[@id='dismiss-button']")).click();
+		}
+				
+		// Switch to New customer page
+		driver.switchTo().defaultContent();
+		
+		driver.findElement(By.cssSelector("input[name='name']")).sendKeys("Travis L Garcia");
+		driver.findElement(By.xpath("//td[text()='Gender']/following-sibling::td/input[@value='f']")).click();
+		
+		// Remove attribute type of Date picker
+		removeAttributeInDOM("//input[@id='dob']", "type");
+		driver.findElement(By.xpath("//input[@id='dob']")).sendKeys("07/07/1983");
+		driver.findElement(By.cssSelector("textarea[name='addr']")).sendKeys("2093 Woodland Terrace");
+		driver.findElement(By.cssSelector("input[name='city']")).sendKeys("Sacramento");
+		driver.findElement(By.cssSelector("input[name='state']")).sendKeys("California");
+		driver.findElement(By.cssSelector("input[name='pinno']")).sendKeys("783642");
+		driver.findElement(By.cssSelector("input[name='telephoneno']")).sendKeys("9169803460");
+		
+		String email = "neva2012" + generateRandomNumber() + "@hotmail.com";
+		driver.findElement(By.cssSelector("input[name='emailid']")).sendKeys(email);
+		driver.findElement(By.cssSelector("input[name='password']")).sendKeys("783642");
+		driver.findElement(By.cssSelector("input[name='sub']")).click();
+		sleepInSecond(3);
+		
+		Assert.assertEquals(driver.findElement(By.cssSelector("p.heading3")).getText(), "Customer Registered Successfully!!!");
+		
+		
+	}
+	
+	@Test
+	public void TC_06_TechPanda() {
+		navigateToUrlByJS("http://live.techpanda.org/");
+		sleepInSecond(5);
+		
+		// Click link "My Account" at hidden header "Account" (not click to Account link)
+		clickToElementByJS("//div[@id='header-account']//a[@title='My Account']");
+		sleepInSecond(3);
+	}
+	
 	public Object executeForBrowser(String javaScript) {
 		return jsExecutor.executeScript(javaScript);
 	}
@@ -199,10 +287,22 @@ public class Demo {
 	public WebElement getElement(String locator) {
 		return driver.findElement(By.xpath(locator));
 	}	
+	
 	public int generateRandomNumber() {
 		Random rand = new Random();
-		return rand.nextInt();
+		return rand.nextInt(9999);
 	}
+	
+	@AfterClass
+	public void afterClass() {
+		//driver.quit();
+	
+	}
+	
+	
+	// Sleep cứng (Static wait)
+	
+	
 	public void sleepInSecond(long timeInSecond) {
 		try {
 			Thread.sleep(timeInSecond * 1000);
@@ -210,4 +310,6 @@ public class Demo {
 			e.printStackTrace();
 		}
 	}
-}
+}	
+
+
