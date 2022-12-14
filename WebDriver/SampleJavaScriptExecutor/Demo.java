@@ -170,7 +170,7 @@ public class Demo {
 		sleepInSecond(3);
 		
 		// This webpage contains Advertisement pop up. This pop up is contained by 2 nested iframe. 
-		// So solution is swith to every frame: frame1 > frame2 
+		// So solution is switch to every frame: frame1 > frame2 
 		WebElement frame1 = driver.findElement(By.id("google_ads_iframe_/24132379/INTERSTITIAL_DemoGuru99_0"));
 		driver.switchTo().frame(frame1);
 		
