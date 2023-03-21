@@ -11,7 +11,7 @@ public class NewYearTransportation_500A {
         int a[] = new int[n];
         for(int i = 1; i < n; i++)
         {
-            a[i] = sc.nextInt();
+        	a[i] = sc.nextInt();
         }
         
         int r = 1;
